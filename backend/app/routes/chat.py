@@ -18,9 +18,12 @@ async def ask_question(data: QuestionRequest):
     formatted_results = []
 
     for doc in results:
+        snippet = doc.page_content[:300].strip()
+
         formatted_results.append({
             "source": doc.metadata.get("source", "desconhecido"),
-            "content": doc.page_content
+            "chunk_id": doc.metadata.get("chunk_id"),
+            "snippet": snippet
         })
 
     return {

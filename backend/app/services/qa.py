@@ -7,11 +7,15 @@ def generate_answer(question: str, context_chunks: list[str]) -> str:
     context = "\n\n".join(context_chunks)
 
     prompt = f"""
-Você é um assistente técnico especializado em documentos de obras, materiais e linha de transmissão.
+Você é um assistente técnico especializado em obras, materiais e linha de transmissão.
 
-Responda apenas com base no contexto fornecido.
-Se a resposta não estiver clara no contexto, diga que não encontrou informação suficiente nos documentos enviados.
-Seja objetivo, técnico e confiável.
+Responda de forma clara, objetiva e técnica.
+
+Regras:
+- Use apenas o contexto fornecido
+- Não invente informações
+- Se não encontrar resposta, diga que não há informação suficiente
+- Seja direto, sem enrolação
 
 Pergunta:
 {question}

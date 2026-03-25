@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocuMind AI</title>
+  <link rel="stylesheet" href="./src/css/style.css" />
+</head>
+<body>
+  <div class="page-glow glow-1"></div>
+  <div class="page-glow glow-2"></div>
+
+  <main class="app-shell">
+    <header class="hero">
+      <span class="hero-badge">RAG • Consulta Técnica Inteligente</span>
+      <h1>DocuMind AI</h1>
+      <p>
+        Faça upload de documentos técnicos e consulte o conteúdo com respostas
+        baseadas nas fontes recuperadas.
+      </p>
+    </header>
+
+    <section class="panel upload-panel">
+      <div class="panel-header">
+        <div>
+          <span class="panel-kicker">Entrada</span>
+          <h2>Upload de documento</h2>
+        </div>
+      </div>
+
+      <div class="upload-box">
+        <label for="fileInput" class="file-label">Selecionar arquivo</label>
+        <input type="file" id="fileInput" />
+        <span id="fileName" class="file-name">Nenhum arquivo selecionado</span>
+        <button id="uploadBtn" class="primary-btn">Enviar documento</button>
+      </div>
+
+      <p id="uploadStatus" class="status-text"></p>
+    </section>
+
+    <section class="panel chat-panel">
+      <div class="panel-header">
+        <div>
+          <span class="panel-kicker">Assistente</span>
+          <h2>Pergunte sobre o documento</h2>
+        </div>
+      </div>
+
+      <div id="messages" class="messages"></div>
+
+      <div class="input-area">
+        <input
+          type="text"
+          id="questionInput"
+          placeholder="Digite sua pergunta..."
+        />
+        <button id="sendBtn" class="primary-btn">Enviar</button>
+      </div>
+    </section>
+
+    <section class="panel sources-panel">
+      <div class="panel-header">
+        <div>
+          <span class="panel-kicker">Rastreabilidade</span>
+          <h2>Fontes usadas</h2>
+        </div>
+      </div>
+
+      <div id="sourcesList" class="sources-list"></div>
+    </section>
+  </main>
+
+  <script src="./src/js/app.js"></script>
+</body>
+</html>

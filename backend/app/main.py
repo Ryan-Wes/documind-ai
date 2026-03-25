@@ -1,12 +1,19 @@
 from fastapi import FastAPI
-from app.routes.upload import router as upload_router
-from app.routes.chat import router as chat_router
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="DocuMind AI")
+from app.routes import upload, chat
 
-app.include_router(upload_router)
-app.include_router(chat_router)
+app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "DocuMind AI backend is running"}
+# 🔥 CORS AQUI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # depois tu pode restringir
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# rotas
+app.include_router(upload.router)
+app.include_router(chat.router)

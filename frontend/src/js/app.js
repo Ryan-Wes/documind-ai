@@ -7,78 +7,37 @@ const uploadBtn = document.getElementById("uploadBtn");
 const fileInput = document.getElementById("fileInput");
 const fileName = document.getElementById("fileName");
 const uploadStatus = document.getElementById("uploadStatus");
+const uploadProgressWrapper = document.getElementById("uploadProgressWrapper");
+const uploadProgressBar = document.getElementById("uploadProgressBar");
 
 const sendBtn = document.getElementById("sendBtn");
 const questionInput = document.getElementById("questionInput");
 
 const messages = document.getElementById("messages");
 const sourcesList = document.getElementById("sourcesList");
+const chatPanel = document.querySelector(".chat-panel");
 
 // ==========================
-// CONTROLE DE ESTADO
+// ESTADO
 // ==========================
 let isUploading = false;
 let isAsking = false;
+let hasUploadedDocument = false;
+let progressInterval = null;
 
 // ==========================
-// EVENTOS INICIAIS
+// INÍCIO
 // ==========================
+lockChat();
+
 fileInput.addEventListener("change", () => {
   const selectedFile = fileInput.files[0];
-
   fileName.textContent = selectedFile
     ? selectedFile.name
     : "Nenhum arquivo selecionado";
 });
 
-uploadBtn.addEventListener("click", async () => {
-  if (isUploading) return;
-
-  const file = fileInput.files[0];
-
-  if (!file) {
-    uploadStatus.textContent = "Selecione um arquivo primeiro.";
-    return;
-  }
-
-  isUploading = true;
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = "Enviando...";
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  uploadStatus.textContent = "Processando documento...";
-
-  try {
-    const response = await fetch(`${API_URL}/upload`, {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-    console.log("Resposta do /upload:", data);
-
-    if (!response.ok) {
-      uploadStatus.textContent = data.detail || "Erro ao enviar arquivo.";
-      return;
-    }
-
-    uploadStatus.textContent =
-      data.message || "Documento enviado com sucesso.";
-
-    fileInput.value = "";
-    fileName.textContent = "Nenhum arquivo selecionado";
-  } catch (error) {
-    uploadStatus.textContent = "Erro ao enviar arquivo.";
-    console.error("Erro no upload:", error);
-  } finally {
-    isUploading = false;
-    uploadBtn.disabled = false;
-    uploadBtn.textContent = "Enviar documento";
-  }
-});
-
+uploadBtn.addEventListener("click", handleUpload);
 sendBtn.addEventListener("click", sendQuestion);
 
 questionInput.addEventListener("keypress", (event) => {
@@ -89,16 +48,94 @@ questionInput.addEventListener("keypress", (event) => {
 });
 
 // ==========================
+// UPLOAD
+// ==========================
+async function handleUpload() {
+  if (isUploading) return;
+
+  const file = fileInput.files[0];
+
+  if (!file) {
+    setUploadStatus("Selecione um arquivo primeiro.", "#ef4444");
+    return;
+  }
+
+  isUploading = true;
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = "Enviando...";
+
+
+  clearSources();
+  startFakeProgress();
+  setUploadStatus("Processando documento...", "#a855f7");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const uploadStartTime = Date.now();
+
+  try {
+    const response = await fetch(`${API_URL}/upload`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    const elapsedTime = Date.now() - uploadStartTime;
+    const minimumVisualTime = 2500; // 2.5 segundos
+
+    if (elapsedTime < minimumVisualTime) {
+      await wait(minimumVisualTime - elapsedTime);
+    }
+
+    if (!response.ok) {
+      finishProgress();
+      setUploadStatus(data.detail || "Erro ao enviar arquivo.", "#ef4444");
+      return;
+    }
+
+    finishProgress();
+
+    hasUploadedDocument = true;
+    unlockChat();
+
+
+
+    setUploadStatus(
+      data.message || "Documento enviado com sucesso.",
+      "#22c55e"
+    );
+
+    
+
+    fileInput.value = "";
+    fileName.textContent = "Nenhum arquivo selecionado";
+  } catch (error) {
+    finishProgress();
+    setUploadStatus("Erro ao enviar arquivo.", "#ef4444");
+    console.error("Erro no upload:", error);
+  } finally {
+    isUploading = false;
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = "Enviar documento";
+  }
+}
+
+// ==========================
 // CHAT
 // ==========================
 async function sendQuestion() {
+  if (!hasUploadedDocument) {
+    addMessage("bot", "Envie um documento antes de fazer perguntas.");
+    return;
+  }
+
   if (isAsking) return;
 
   const question = questionInput.value.trim();
 
-  if (!question) {
-    return;
-  }
+  if (!question) return;
 
   isAsking = true;
   sendBtn.disabled = true;
@@ -120,7 +157,6 @@ async function sendQuestion() {
     });
 
     const data = await response.json();
-    console.log("Resposta do /ask:", data);
 
     removeTypingMessage();
 
@@ -142,6 +178,71 @@ async function sendQuestion() {
     sendBtn.textContent = "Enviar";
     questionInput.focus();
   }
+}
+
+// ==========================
+// STATUS E PROGRESSO
+// ==========================
+function setUploadStatus(message, color) {
+  uploadStatus.textContent = message;
+  uploadStatus.style.color = color;
+}
+
+function startFakeProgress() {
+  clearInterval(progressInterval);
+
+  uploadProgressWrapper.classList.remove("hidden");
+  uploadProgressBar.style.width = "0%";
+
+  let progress = 0;
+
+  progressInterval = setInterval(() => {
+    if (progress < 90) {
+      progress += 7;
+      uploadProgressBar.style.width = `${progress}%`;
+    }
+  }, 120);
+}
+
+function finishProgress() {
+  clearInterval(progressInterval);
+  uploadProgressBar.style.width = "100%";
+
+  setTimeout(() => {
+    uploadProgressWrapper.classList.add("hidden");
+    uploadProgressBar.style.width = "0%";
+  }, 1800);
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ==========================
+// CHAT LOCK
+// ==========================
+function lockChat() {
+  hasUploadedDocument = false;
+
+  if (chatPanel) {
+    chatPanel.classList.add("locked");
+  }
+
+  questionInput.disabled = true;
+  sendBtn.disabled = true;
+  questionInput.placeholder = "Envie um documento para liberar o chat";
+}
+
+function unlockChat() {
+  hasUploadedDocument = true;
+
+  if (chatPanel) {
+    chatPanel.classList.remove("locked");
+  }
+
+  questionInput.disabled = false;
+  sendBtn.disabled = false;
+  questionInput.placeholder = "Digite sua pergunta...";
 }
 
 // ==========================

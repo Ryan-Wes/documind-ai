@@ -23,7 +23,7 @@ async def ask_question(data: QuestionRequest):
         formatted_results.append({
             "source": doc.metadata.get("source", "desconhecido"),
             "chunk_id": doc.metadata.get("chunk_id"),
-            "snippet": snippet
+            "content": snippet
         })
 
     return {

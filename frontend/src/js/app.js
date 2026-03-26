@@ -15,6 +15,12 @@ const messages = document.getElementById("messages");
 const sourcesList = document.getElementById("sourcesList");
 
 // ==========================
+// CONTROLE DE ESTADO
+// ==========================
+let isUploading = false;
+let isAsking = false;
+
+// ==========================
 // EVENTOS INICIAIS
 // ==========================
 fileInput.addEventListener("change", () => {
@@ -26,6 +32,8 @@ fileInput.addEventListener("change", () => {
 });
 
 uploadBtn.addEventListener("click", async () => {
+  if (isUploading) return;
+
   const file = fileInput.files[0];
 
   if (!file) {
@@ -33,10 +41,14 @@ uploadBtn.addEventListener("click", async () => {
     return;
   }
 
+  isUploading = true;
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = "Enviando...";
+
   const formData = new FormData();
   formData.append("file", file);
 
-  uploadStatus.textContent = "Enviando documento...";
+  uploadStatus.textContent = "Processando documento...";
 
   try {
     const response = await fetch(`${API_URL}/upload`, {
@@ -45,6 +57,7 @@ uploadBtn.addEventListener("click", async () => {
     });
 
     const data = await response.json();
+    console.log("Resposta do /upload:", data);
 
     if (!response.ok) {
       uploadStatus.textContent = data.detail || "Erro ao enviar arquivo.";
@@ -59,6 +72,10 @@ uploadBtn.addEventListener("click", async () => {
   } catch (error) {
     uploadStatus.textContent = "Erro ao enviar arquivo.";
     console.error("Erro no upload:", error);
+  } finally {
+    isUploading = false;
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = "Enviar documento";
   }
 });
 
@@ -66,6 +83,7 @@ sendBtn.addEventListener("click", sendQuestion);
 
 questionInput.addEventListener("keypress", (event) => {
   if (event.key === "Enter") {
+    event.preventDefault();
     sendQuestion();
   }
 });
@@ -74,16 +92,22 @@ questionInput.addEventListener("keypress", (event) => {
 // CHAT
 // ==========================
 async function sendQuestion() {
+  if (isAsking) return;
+
   const question = questionInput.value.trim();
 
   if (!question) {
     return;
   }
 
+  isAsking = true;
+  sendBtn.disabled = true;
+  questionInput.disabled = true;
+  sendBtn.textContent = "Enviando...";
+
   addMessage("user", question);
   questionInput.value = "";
-  questionInput.focus();
-
+  clearSources();
   addTypingMessage();
 
   try {
@@ -96,6 +120,7 @@ async function sendQuestion() {
     });
 
     const data = await response.json();
+    console.log("Resposta do /ask:", data);
 
     removeTypingMessage();
 
@@ -110,6 +135,12 @@ async function sendQuestion() {
     removeTypingMessage();
     addMessage("bot", "Erro ao obter resposta.");
     console.error("Erro na pergunta:", error);
+  } finally {
+    isAsking = false;
+    sendBtn.disabled = false;
+    questionInput.disabled = false;
+    sendBtn.textContent = "Enviar";
+    questionInput.focus();
   }
 }
 
@@ -119,7 +150,6 @@ async function sendQuestion() {
 function addMessage(type, text) {
   const div = document.createElement("div");
   div.classList.add("message", type);
-
   div.textContent = text;
 
   messages.appendChild(div);
@@ -144,6 +174,10 @@ function removeTypingMessage() {
   if (typingMessage) {
     typingMessage.remove();
   }
+}
+
+function clearSources() {
+  sourcesList.innerHTML = "";
 }
 
 function renderSources(sources) {

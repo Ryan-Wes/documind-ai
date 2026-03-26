@@ -1,8 +1,9 @@
+import os
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from app.core.config import OPENAI_API_KEY
 
-CHROMA_DIR = "chroma_db"
+CHROMA_DIR = os.path.join(os.getcwd(), "chroma_db")
 
 def search_similar_chunks(query: str, k: int = 3):
     embeddings = OpenAIEmbeddings(

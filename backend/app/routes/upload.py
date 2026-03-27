@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 import os
 from app.services.loader import load_document
 from app.services.chunker import split_text
-from app.services.vector_store import save_chunks_to_chroma
+from app.services.vector_store import save_chunks_to_qdrant
 
 router = APIRouter()
 
@@ -20,10 +20,10 @@ async def upload_file(file: UploadFile = File(...)):
     text = load_document(file_path)
     chunks = split_text(text)
 
-    save_chunks_to_chroma(chunks, file.filename)
+    save_chunks_to_qdrant(chunks, file.filename)
 
     return {
         "filename": file.filename,
         "total_chunks": len(chunks),
-        "message": "Documento processado e salvo no ChromaDB com sucesso"
+        "message": "Documento processado e salvo no Qdrant com sucesso"
     }

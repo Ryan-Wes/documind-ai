@@ -1,18 +1,24 @@
-import os
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
-from app.core.config import OPENAI_API_KEY
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
 
-CHROMA_DIR = os.path.join(os.getcwd(), "chroma_db")
+from app.core.config import OPENAI_API_KEY, QDRANT_URL, QDRANT_API_KEY, QDRANT_COLLECTION
+
 
 def search_similar_chunks(query: str, k: int = 3):
     embeddings = OpenAIEmbeddings(
         openai_api_key=OPENAI_API_KEY
     )
 
-    vector_store = Chroma(
-        persist_directory=CHROMA_DIR,
-        embedding_function=embeddings
+    client = QdrantClient(
+        url=QDRANT_URL,
+        api_key=QDRANT_API_KEY
+    )
+
+    vector_store = QdrantVectorStore(
+        client=client,
+        collection_name=QDRANT_COLLECTION,
+        embedding=embeddings
     )
 
     results = vector_store.similarity_search(query, k=k)

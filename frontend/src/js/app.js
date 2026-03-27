@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://documind-backend-r460.onrender.com";
 
 // ==========================
 // ELEMENTOS
@@ -83,7 +83,7 @@ async function handleUpload() {
     const data = await response.json();
 
     const elapsedTime = Date.now() - uploadStartTime;
-    const minimumVisualTime = 2500; // 2.5 segundos
+    const minimumVisualTime = 1500; 
 
     if (elapsedTime < minimumVisualTime) {
       await wait(minimumVisualTime - elapsedTime);

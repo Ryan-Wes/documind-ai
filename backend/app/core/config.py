@@ -12,4 +12,11 @@ load_dotenv(dotenv_path=env_path)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-print("API KEY carregada:", OPENAI_API_KEY[:10] if OPENAI_API_KEY else "None")
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION")
+
+# debug básico (pode tirar depois)
+print("OPENAI:", "OK" if OPENAI_API_KEY else "None")
+print("QDRANT URL:", QDRANT_URL)
+print("QDRANT COLLECTION:", QDRANT_COLLECTION)

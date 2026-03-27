@@ -8,10 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # aponta pro .env dentro de backend
 env_path = BASE_DIR / ".env"
 
-load_dotenv(dotenv_path=env_path)
+# só tenta carregar .env se ele existir
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION")

@@ -5,6 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DocuMind AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./src/css/style.css" />
 </head>
 
@@ -15,62 +18,101 @@
   <main class="app-shell">
     <header class="hero">
       <span class="hero-badge">RAG • Consulta Técnica Inteligente</span>
-      <h1>DocuMind AI</h1>
+      <h1>DocuMind <span class="hero-accent">AI</span></h1>
       <p>
         Faça upload de documentos técnicos e consulte o conteúdo com respostas
         baseadas nas fontes recuperadas.
       </p>
     </header>
 
-    <section class="panel upload-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-kicker">Entrada</span>
-          <h2>Upload de documento</h2>
-        </div>
+    <div class="workspace">
+
+      <!-- Coluna esquerda: upload + documentos -->
+      <div class="col-left">
+
+        <section class="panel upload-panel">
+          <div class="panel-header">
+            <div>
+              <span class="panel-kicker">Entrada</span>
+              <h2>Upload de documento</h2>
+            </div>
+          </div>
+
+          <div class="upload-box">
+            <label for="fileInput" class="file-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Selecionar arquivo
+            </label>
+            <input type="file" id="fileInput" accept=".pdf,.txt" />
+            <span id="fileName" class="file-name">Nenhum arquivo selecionado</span>
+          </div>
+
+          <div id="uploadProgressWrapper" class="progress-wrapper hidden">
+            <div id="uploadProgressBar" class="progress-bar"></div>
+          </div>
+
+          <p id="uploadStatus" class="status-text"></p>
+
+          <button id="uploadBtn" class="primary-btn full-width">Enviar documento</button>
+        </section>
+
+        <section class="panel docs-panel">
+          <div class="panel-header">
+            <div>
+              <span class="panel-kicker">Base de conhecimento</span>
+              <h2>Documentos indexados</h2>
+            </div>
+            <span id="docsCount" class="docs-count">0</span>
+          </div>
+
+          <div id="docsList" class="docs-list">
+            <p class="empty-state">Nenhum documento indexado ainda.</p>
+          </div>
+        </section>
+
       </div>
 
-      <div class="upload-box">
-        <label for="fileInput" class="file-label">Selecionar arquivo</label>
-        <input type="file" id="fileInput" />
-        <span id="fileName" class="file-name">Nenhum arquivo selecionado</span>
-        <button id="uploadBtn" class="primary-btn">Enviar documento</button>
+      <!-- Coluna direita: chat + fontes -->
+      <div class="col-right">
+
+        <section class="panel chat-panel">
+          <div class="panel-header">
+            <div>
+              <span class="panel-kicker">Assistente</span>
+              <h2>Pergunte sobre o documento</h2>
+            </div>
+            <span id="chatStatus" class="chat-status locked">Aguardando documento</span>
+          </div>
+
+          <div id="messages" class="messages">
+            <div class="message bot welcome-msg">
+              Olá! Envie um documento no painel ao lado e faça perguntas sobre o conteúdo dele.
+            </div>
+          </div>
+
+          <div class="input-area">
+            <input type="text" id="questionInput" placeholder="Envie um documento para liberar o chat" disabled />
+            <button id="sendBtn" class="primary-btn" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel sources-panel">
+          <div class="panel-header">
+            <div>
+              <span class="panel-kicker">Rastreabilidade</span>
+              <h2>Fontes usadas</h2>
+            </div>
+          </div>
+
+          <div id="sourcesList" class="sources-list">
+            <p class="empty-state">As fontes aparecerão após a primeira pergunta.</p>
+          </div>
+        </section>
+
       </div>
-
-      <div id="uploadProgressWrapper" class="progress-wrapper hidden">
-        <div id="uploadProgressBar" class="progress-bar"></div>
-      </div>
-
-
-      <p id="uploadStatus" class="status-text"></p>
-    </section>
-
-    <section class="panel chat-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-kicker">Assistente</span>
-          <h2>Pergunte sobre o documento</h2>
-        </div>
-      </div>
-
-      <div id="messages" class="messages"></div>
-
-      <div class="input-area">
-        <input type="text" id="questionInput" placeholder="Digite sua pergunta..." />
-        <button id="sendBtn" class="primary-btn">Enviar</button>
-      </div>
-    </section>
-
-    <section class="panel sources-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-kicker">Rastreabilidade</span>
-          <h2>Fontes usadas</h2>
-        </div>
-      </div>
-
-      <div id="sourcesList" class="sources-list"></div>
-    </section>
+    </div>
   </main>
 
   <script src="./src/js/app.js"></script>

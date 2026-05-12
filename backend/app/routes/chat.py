@@ -5,21 +5,22 @@ from app.services.qa import generate_answer
 
 router = APIRouter()
 
+
 class QuestionRequest(BaseModel):
     question: str
+    history: list[dict] = []
+
 
 @router.post("/ask")
 async def ask_question(data: QuestionRequest):
-    results = search_similar_chunks(data.question)
+    results = search_similar_chunks(data.question, k=6)
 
     context_chunks = [doc.page_content for doc in results]
-    answer = generate_answer(data.question, context_chunks)
+    answer = generate_answer(data.question, context_chunks, data.history)
 
     formatted_results = []
-
     for doc in results:
         snippet = doc.page_content[:300].strip()
-
         formatted_results.append({
             "source": doc.metadata.get("source", "desconhecido"),
             "chunk_id": doc.metadata.get("chunk_id"),

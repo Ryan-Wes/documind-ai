@@ -1,7 +1,7 @@
 backend/venv/
 backend/.env
 backend/chroma_db/
-backend/data/uploads/
+backend/data/
 __pycache__/
 *.pyc
 .vscode/
